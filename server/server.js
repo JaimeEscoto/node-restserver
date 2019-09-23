@@ -1,46 +1,32 @@
 require('./config/config.js')
 const express = require('express');
+const mongoose = require('mongoose');
+
 const app = express();
 
-const bodyParser = require('body-parser');
+app.use(require('./routes/usuario'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
-app.get('/usuario', (req, res) => {
-    res.json('Get Usuario');
 
+// mongoose.connect('mongodb://localhost:27017/cafe1', (err, res) => {
+
+//     if (err) throw err;
+
+//     console.log('Base de datos online');
+
+// });
+//mongoose.connect(process.env.URLDB, {
+mongoose.connect(process.env.URLDB, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
-app.post('/usuario', (req, res) => {
+//app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, (err, res) => {
 
-    let body = req.body;
-    let params = req.param;
-
-    if (body.nombre === undefined)
-
-    {
-        res.status(400).json({ ok: false, mensaje: 'el nombre es necesario' });
-    } else {
-
-        res.json({
-            body: body,
-            params: params
-        });
-    }
-
-});
-
-app.put('/usuario', (req, res) => {
-    res.json('Put Usuario');
-
-});
-
-app.delete('/usuario', (req, res) => {
-    res.json('Delete Usuario');
-
-});
-app.listen(process.env.PORT, () => {
-    console.log('Escuchando en puerto 3000');
+    if (err) throw err;
+    console.log(`Escuchando en puerto ${process.env.PORT}`);
+    console.log(`En el ambiente de: ${process.env.URLDB}`);
 
 });
