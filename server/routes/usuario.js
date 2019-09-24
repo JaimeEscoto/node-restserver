@@ -1,17 +1,34 @@
+// Express
 const express = require('express');
+const app = express();
+
+// Modelo de usuario para Mongoose
 const Usuario = require('../models/usuario');
 
+// Funcionalidades de underscore
 const _ = require('underscore');
+
+// Para encriptar
 const bcrypt = require('bcrypt');
 
-const app = express();
-const bodyParser = require('body-parser');
 
+
+// Para tomar valores del Body
+const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/usuario', (req, res) => {
+// Autenticación
+const { verificarToken, verificarTokenAdmin_Role } = require('../middlewares/autenticacion');
+
+
+app.get('/usuario', verificarToken, (req, res) => {
     //res.json(req.body);
+
+    //return res.json({
+    //    usuario: req.usuario,
+    //    nombre: req.usuario.nombre
+    //})
     let desde = req.query.desde || 0;
     desde = Number(desde);
     let limite = req.query.limite || 5;
@@ -40,7 +57,7 @@ app.get('/usuario', (req, res) => {
 
 });
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificarToken, verificarTokenAdmin_Role], (req, res) => {
 
     //c('HOLA');
     let body = req.body;
@@ -73,7 +90,7 @@ app.post('/usuario', (req, res) => {
 
 });
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificarToken, verificarTokenAdmin_Role], (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
     console.log(body);
@@ -94,17 +111,13 @@ app.put('/usuario/:id', (req, res) => {
 
     })
 
-
-
     //res.json({ mensaje: 'Put Usuario', id });
 
 });
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificarToken, verificarTokenAdmin_Role], (req, res) => {
 
     let id = req.params.id;
-
-
 
     Usuario.findByIdAndUpdate(id, { estado: false }, { new: true }, (err, usuarioBorrado) => {
 
